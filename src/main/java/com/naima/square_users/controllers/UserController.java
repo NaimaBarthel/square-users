@@ -26,10 +26,6 @@ public class UserController {
     }
 
     //1. créer un utilisateur (renvoie 201 Created)
-    @Operation(
-            summary = "Créer un nouvel utilisateur",
-            description = "Enregistre un compte avec un pseudonyme et un email uniques, puis génère son identifiant."
-    )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Utilisateur créé avec succès",
                     content = @Content(schema = @Schema(implementation = UserEntity.class))),
@@ -37,6 +33,7 @@ public class UserController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Créer un utilisateur avec mot de passe haché")
     public UserEntity createUser(@RequestBody UserCreationDto dto){
         return userService.createUser(dto);
     }
@@ -52,6 +49,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Aucun utilisateur trouvé avec cet identifiant")
     })
     @GetMapping("/{id}")
+
     public ResponseEntity<UserEntity> getUserById(
             @Parameter(description = "Identifiant de l'utilisateur", required = true, example = "fb20f8b4-c32c-43cf-8b4e-0418880ae115")
             @PathVariable("id") String id){
@@ -61,16 +59,14 @@ public class UserController {
     }
 
     //3. supprimer un utilisateur (204 No Content)
-    @Operation(
-            summary = "Supprimer un utilisateur",
-            description = "Supprime définitivement un compte utilisateur de la base de données."
-    )
+
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Utilisateur supprimé avec succès"),
             @ApiResponse(responseCode = "404", description = "Utilisateur introuvable")
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+
     public void deleteUser(
             @Parameter(description = "Identifiant de l'utilisateur à supprimer", required = true, example = "fb20f8b4-c32c-43cf-8b4e-0418880ae115")
             @PathVariable("id") String id){
@@ -78,15 +74,13 @@ public class UserController {
     }
 
     //4. vérifier la validité de l'utilisateur (200 OK ou 404 Not Found)
-    @Operation(
-            summary = "Valider l'existence d'un utilisateur",
-            description = "Endpoint d'authentification inter-services appelé par square-games pour vérifier qu'un joueur existe en base."
-    )
+
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "L'utilisateur existe et est valide (corps de réponse vide)"),
             @ApiResponse(responseCode = "404", description = "Utilisateur inexistant ou invalide")
     })
     @GetMapping("/{id}/valid")
+
     public ResponseEntity<Void> isUserValid(
             @Parameter(description = "Identifiant de l'utilisateur à vérifier", required = true, example = "fb20f8b4-c32c-43cf-8b4e-0418880ae115")
             @PathVariable("id") String id) {

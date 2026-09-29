@@ -3,6 +3,7 @@ package com.naima.square_users.services;
 import com.naima.square_users.controllers.dto.UserCreationDto;
 import com.naima.square_users.dao.entities.UserEntity;
 import com.naima.square_users.dao.repositories.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -10,14 +11,23 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public UserEntity createUser(UserCreationDto dto) {
-        UserEntity entity = new UserEntity(dto.id(),dto.username(),dto.email());
+        // Encodage en BCrypt du mot de passe reçu dans le record
+        String encodedPassword = passwordEncoder.encode(dto.password());
+
+        UserEntity entity = new UserEntity();
+        entity.setId(null); // Force l'id à null pour déclencher un INSERT propre
+        entity.setUsername(dto.username());
+        entity.setEmail(dto.email());
+        entity.setPassword(encodedPassword);
         return userRepository.save(entity);
     }
 
